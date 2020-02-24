@@ -21,85 +21,95 @@
 
 const chooseWord = (words) => {
     const randomNumber = Math.round(Math.random() * 9);
-    const randomWord = words.slice(randomNumber, (randomNumber + 1));
+    // const randomWord = words.slice(randomNumber, (randomNumber + 1));
 
-    return randomWord;
+    return words[randomNumber];
 }
-const transformLetters = (hiddenWord) => {
-    for (let i = 0; i < hiddenWord.length; i++) {
-        if (hiddenWord[i] !== "*") {
-            hiddenWord[i] = "*";
-        }
-    }
-    return hiddenWord;
-}
-const showLetter = (forGuessing, hiddenWord) => {
-    for (let i = 0; i < forGuessing.length; i++) {
 
-        if (forGuessing[i] === playerMove) {
+const splitWord = (word) => {
+    const splittedWord = word.split('');
+
+    return splittedWord;
+}
+
+const joinWord = (array) => {
+    const joinedArray = array.join('');
+
+    return joinedArray;
+}
+const transformLetters = (word) => {
+    let hideWord = [];
+    for (let i = 0; i < word.length; i++) {
+        if (word[i] !== "*") {
+           hideWord[i] = "*";
+        };
+    };
+
+    return hideWord;
+}
+const showLetter = (word, hiddenWord) => {
+    for (let i = 0; i < word.length; i++) {
+
+        if (word[i] === playerMove) {
             hiddenWord[i] = playerMove;
         }
     }
+
+
     return hiddenWord;
 }
 
-const compareBeforeAndAfterMove = (beforeMove, hiddenWord, counter) => {
-    if (playerMove === forGuessing.join('')) {
+const compareBeforeAndAfterMove = (word, hiddenWord, counter) => {
+    if (word.includes(playerMove)) {
         counter += 0;
     }
-    else if (beforeMove === hiddenWord.join('')) {
+    else {
         counter -= 1;
     }
 
     return counter
 }
 
-const checkIfGameLost = (playerMove, forGuessing, counter, hiddenWord) => {
-    let lostGame = playerMove !== forGuessing.join('') && 
+const checkIfGameLost = (playerMove, word, counter, hiddenWord) => {
+    let lostGame = playerMove !== word && 
     counter > 0 && 
     playerMove.length <= 1 && 
-    forGuessing.join('') !== hiddenWord.join('');
+    word !==  joinWord(hiddenWord);
 
     return lostGame
 }
 
 const words = ["cualquiera", "pensionado", "esclerosis", "caleidoscopio", "electroencefalografista", "desoxirribonucleico", "pasteurizado", "idiosincrasia", "metacrilato", "transportista"];
 
-let wordForGuessing = chooseWord(words);
+let word = chooseWord(words);
+splittedWord = splitWord(word);
+
+let hiddenWord = transformLetters(splittedWord);
+
 let counter = 6;
-
-let forGuessing = wordForGuessing.toString().split("");
-let hiddenWord = forGuessing.slice(0, forGuessing.length + 1)
-
-hiddenWord = transformLetters(hiddenWord);
 playerMove = "a";
-lostGame = checkIfGameLost(playerMove, forGuessing, counter, hiddenWord);
+lostGame = checkIfGameLost(playerMove, word, counter, hiddenWord);
 
 while (lostGame) {    
-    const beforeMove = hiddenWord.join(' ');
+
+    playerMove = prompt(`La palabra a adivinar es ${joinWord(hiddenWord)}. Te quedan ${counter} equivocaciones posibles. Ingrese una letra o intenten adivinar la palabra.`);
+
+    hiddenWord = showLetter(splittedWord, hiddenWord);
     
-    playerMove = prompt(`La palabra a adivinar es ${beforeMove}. Te quedan ${counter} equivocaciones posibles. Ingrese una letra o intenten adivinar la palabra.`);
+    counter = compareBeforeAndAfterMove(splittedWord, hiddenWord, counter);
 
-    hiddenWord = showLetter(forGuessing, hiddenWord);
-    
-    counter = compareBeforeAndAfterMove(beforeMove, hiddenWord, counter);
-
-    lostGame = checkIfGameLost(playerMove, forGuessing, counter, hiddenWord);
+    lostGame = checkIfGameLost(playerMove, word, counter, hiddenWord);
     
 
 }
 
-if (counter === 0 && playerMove !== forGuessing.join('') ) {
-    alert(`¡Has perdido! La palabra era ${forGuessing.join('')}`)
+gameWon = counter === 0 && playerMove === word || 
+          playerMove === word ||
+          word === joinWord(hiddenWord);
+
+if (gameWon) {
+    alert(`¡Has ganado! La palabra era ${word}`)
 }
-else if (counter === 0 && playerMove === forGuessing.join('') ) {
-    alert(`¡Has ganado! La palabra era ${forGuessing.join('')}`)
-}
-else if (playerMove === forGuessing.join('')) {
-    alert(`¡Has ganado! La palabra era ${forGuessing.join('')}`)
-}
-else if (forGuessing.join('') === hiddenWord.join(''))
-    alert(`¡Has ganado! La palabra era ${forGuessing.join('')}`)
 else {
-    alert(`¡Has perdido! La palabra era ${forGuessing.join('')}`)
+    alert(`¡Has perdido! La palabra era ${word}`)
 }
